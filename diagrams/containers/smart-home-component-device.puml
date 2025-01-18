@@ -1,0 +1,19 @@
+@startuml
+title Теплый дом, Device Manager Container Diagram
+
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(deviceManagerService, "Device Manager Service") {
+    Component(api, "Device Manager API", "Spring REST", "Управление состоянием приборов")
+    Component(deviceManager, "Device Manager", "Java Service", "Сервис регистрации приборов")
+    Component(deviceManagerConfiguration, "Device Manager Config", "Java Service", "Сервис конфигурации приборов")
+    ComponentDb(deviceManagerDatabase, "User DB", "Postgres", "База данных приборов")
+    Component(kafka, "Kafka", "Асинхронное взаимодействие")
+
+    Rel(api, deviceManager, "Регистрация приборов")
+    Rel(api, deviceManagerConfiguration, "Установка параметров устройства")
+    Rel(deviceManager, deviceManagerDatabase, "Установка параметров приборов")
+    Rel(deviceManagerConfiguration, deviceManagerDatabase, "База данных приборов")
+    Rel(deviceManagerConfiguration, kafka, "Изменение конфигурации приборов")
+}
+@enduml

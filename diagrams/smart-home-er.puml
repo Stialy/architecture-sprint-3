@@ -1,0 +1,77 @@
+@startuml
+
+
+entity "User" as user {
+  *id : Integer <<generated>>
+  --
+  *name : String
+  email : String
+  status: Boolean
+  password_hash: String
+}
+
+entity "House" as house {
+  *id : Integer <<generated>>
+  --
+  *user_id : Integer <<FK>>
+  address : String
+  name : String
+  status: Boolean
+}
+
+entity "DeviceType" as deviceType {
+   * id : Integer <<generated>>
+   --
+   name: String
+   parameters: String
+}
+
+entity "Device" as device {
+  *device_id : Integer <<generated>>
+  --
+  *home_id : Integer <<FK>>
+  model : String
+  status : Boolean
+  serial_number: String
+  parameters : String
+  token: String
+}
+
+entity "Module" as module {
+  *id : Integer <<generated>>
+  --
+  *device_id : Integer <<FK>>
+  *moduleType_id: Integer <<FK>>
+  name : String
+  description : String
+  status: Boolean
+}
+
+entity "ModuleType" as moduleType {
+   * id : Integer <<generated>>
+   --
+   name: String
+   parameters: String
+}
+
+entity "Telemetry" as telemetry {
+  *id : Integer <<generated>>
+  --
+  *device_id : Integer <<FK>>
+  value : Json
+  timestamp : Timestamp
+}
+
+'user and home relationship
+user ||..o{ house
+house ||..|| device
+
+'device relationships
+device ||..o{ telemetry
+device ||..o{ module
+device ||..|| deviceType
+
+'module relationships
+module ||..|| moduleType
+
+@enduml
