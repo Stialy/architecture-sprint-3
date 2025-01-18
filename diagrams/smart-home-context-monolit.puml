@@ -1,0 +1,19 @@
+@startuml
+title Теплый дом, Context Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "Пользователь", "Пользователь Тёплый дом")
+System(smarthome, "Приложение smart-home", "Управление приборами, подключенными к Тёплый дом")
+
+System_Ext(device, "Прибор", "Домашние приборы подключенные к Тёплый дом")
+
+Rel(user, smarthome, "Команды управления прибором")
+Rel(user, smarthome, "Запрос телеметрии прибора")
+Rel(user, smarthome, "Запрос актуальных настроек прибора")
+Rel(device, smarthome, "Запрос актуальных настроек прибора")
+Rel(device, smarthome, "Передача телеметрии")
+
+@enduml

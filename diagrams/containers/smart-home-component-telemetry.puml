@@ -1,0 +1,25 @@
+@startuml
+
+title Теплый дом, Device Telemetry Service
+
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(deviceTelemetryService, "Device Telemetry Service component diagram") {
+    Component(deviceTelemetryApi, "Sensor Control API", "Spring REST", "API для работы с сообщениями от приборов")
+    Component(commandHandler, "Command Handler", "Java Service", "Обрабатывает поступающие сообщения")
+    Component(queryHandler, "Query Handler", "Java Service", "Обрабатывает поступающие запросы на состояние приборов")
+    Component(kafka, "Kafka", "Отслеживает текущее состояние приборов")
+    Component(stateManager, "State Manager", "Java Service", "Отслеживает текущее состояние приборов")
+    ComponentDb(deviceTelemetryDatabase, "Sensor Control DB", "ElasticSearch", "Хранит данные о состояниях приборов")
+
+    'сохранение данных
+    Rel(deviceTelemetryApi, commandHandler, "Запросы изменение статуса проборов")
+    Rel(commandHandler, kafka, "Состояние прибора (телеметрия) для асинхронного сохранения")
+    Rel(kafka, stateManager, "Состояние прибора (телеметрия)")
+    Rel(stateManager, deviceTelemetryDatabase, "Сохранение данных")
+
+    'получение состояния приборов
+    Rel(deviceTelemetryApi, queryHandler, "Запросы на чтение текущего статуса приборов")
+    Rel(queryHandler, deviceTelemetryDatabase, "Получение состояния проборов")
+}
+@enduml

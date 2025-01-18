@@ -1,0 +1,54 @@
+@startuml
+title Теплый дом, Container Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "Пользователь", "Пользователи экосистемы Теплый Дом")
+
+System_Boundary(smartHome, "Приложение Smart home") {
+    Container(smartHomeSite, "Теплый дом Web site", "Веб сайт с личным кабинетом (ЛК) для управления устройствами")
+    System_Boundary(smartHomeService, "Backend сервисов Tеплого дома"){
+        Container(apiGateway, "Api Gateway", "Аутентификация/авторизация, маршрутизация запросов, балансировка и ограничение нагрузки")
+        Container(deviceService, "Device Service", "Обеспечивает управление приборами")
+        ComponentDb(deviceDatabase, "БД приборов и настроек", "Postgres")
+        Container(deviceTelemetryService, "Device Telemetry Service", "Обеспечивает работу с телеметрией")
+        Container(authService, "Authorization Service", "Обеспечивает авторизацию и аутентификацию пользователей и устройств")
+        ComponentDb(authorizationDatabase, "БД пользователей и приборов (tokens)", "Postgres")
+        ComponentDb(deviceTelemetryDatabase, "БД телеметрии приборов", "ElasticSearch")
+        Container(kafka, "Kafka", "Брокер сообщений для асинхронной обновления данных")
+        Container(deviceNotifierService, "Device Notifier Service", "Сервис обновления настроек прибора по требованию")
+    }
+   }
+
+System_Ext(device, "Прибор", "Приборы подключенные к Теплому Дому")
+Rel(user, smartHomeSite, "Получение доступа к ЛК")
+Rel(user, smartHomeSite, "Управление приборами")
+Rel(user, smartHomeSite, "Получение телеметрии приборов")
+Rel(user, smartHomeSite, "Получение актуальных настроек приборов")
+Rel(smartHomeSite, apiGateway, "Авторизация пользователя")
+Rel(smartHomeSite, apiGateway, "Управление приборами")
+Rel(smartHomeSite, apiGateway, "Получение телеметрии приборов")
+Rel(smartHomeSite, apiGateway, "Получение актуальных настроек приборов")
+Rel(device, apiGateway, "Авторизация устройства")
+Rel(device, apiGateway, "Получение актуальных настроек прибора")
+Rel(device, apiGateway, "Передача телеметрии прибора")
+
+Rel(apiGateway, authService, "Аутентификация и авторизация")
+Rel(authService, authorizationDatabase, "Получение данных для авторизации/аутентификации")
+
+Rel(apiGateway, deviceService, "Команды управления прибором")
+Rel(apiGateway, deviceService, "Получение актуальных настроек прибора")
+Rel(deviceService, deviceDatabase, "Управление пробором")
+
+Rel(apiGateway, deviceTelemetryService, "Запрос телеметрии прибора")
+Rel(apiGateway, deviceTelemetryService, "Передача телеметрии прибора")
+Rel(deviceTelemetryService, kafka, "Асинхронное обновление данных приборов")
+Rel(deviceTelemetryService, deviceTelemetryDatabase, "Чтение телеметрии")
+Rel(kafka, deviceTelemetryDatabase, "Запись телеметрии")
+Rel(deviceService, kafka, "Изменение настроек прибора")
+Rel(kafka, deviceNotifierService, "Изменение настроек прибора")
+Rel(deviceNotifierService, device, "Изменение настроек прибора")
+
+@enduml
